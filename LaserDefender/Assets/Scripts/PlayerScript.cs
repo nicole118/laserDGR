@@ -14,7 +14,7 @@ public class PlayerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        private void Move()
+        void Move()
         {
 
             //var is used as a generic variable. VS will set its type according to its value.
