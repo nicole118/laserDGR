@@ -1,28 +1,41 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class PlayerScript : MonoBehaviour
 {
     //can arrage the speed from unity directly
     [SerializeField] float movementSpeed = 10f;
-
+    [SerializeField] GameObject laserPreFab;
+    [SerializeField] float laserSpeed = 15f;
     float xMin, xMax, yMin, yMax;
 
+    float padding = 0.5f;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        setupMoveBoundaries();
+        //StartCoroutine(PrintAndWait());
     }
 
     // Update is called once per frame
     void Update()
     {
-        setupMoveBoundaries();
-            Move();
+        
+        Move();
+        Fire();
     }
+
+    //coroutine example
+    //private IEnumerator PrintAndWait()
+    //{
+    //    print("Mess 1");
+    //    yield return new WaitForSeconds(10);
+    //    print("Mess 2");
+    //}
 
     //sets the borders according to the main camera
     private void setupMoveBoundaries()
@@ -30,11 +43,11 @@ public class PlayerScript : MonoBehaviour
         Camera gameCamera = Camera.main;
 
         //x = 0, according to camera view
-        xMin = gameCamera.ViewportToWorldPoint(new Vector3(0, 0, 0)).x;
-        xMax = gameCamera.ViewportToWorldPoint(new Vector3(1, 0, 0)).x;
+        xMin = gameCamera.ViewportToWorldPoint(new Vector3(0, 0, 0)).x + padding;
+        xMax = gameCamera.ViewportToWorldPoint(new Vector3(1, 0, 0)).x - padding;
 
-        yMin = gameCamera.ViewportToWorldPoint(new Vector3(0, 0, 0)).y;
-        yMax = gameCamera.ViewportToWorldPoint(new Vector3(0, 1, 0)).y;
+        yMin = gameCamera.ViewportToWorldPoint(new Vector3(0, 0, 0)).y + padding;
+        yMax = gameCamera.ViewportToWorldPoint(new Vector3(0, 1, 0)).y - padding;
 
     }
 
@@ -60,5 +73,20 @@ public class PlayerScript : MonoBehaviour
 
         //the x-position and y-positionwill be updated according to these 2 variables.
         transform.position = new Vector2(newXPos, newYPos);
+    }
+
+    private void Fire()
+    {
+        //if key is pressed, create and fire a laser
+        if (Input.GetButtonDown("Fire1"))
+        {
+            //creates an instance (a copy of the prefab) at the position of the laser ship
+            //creates a copy of an object 
+            GameObject laser = Instantiate(laserPreFab, transform.position, quaternion.identity) as GameObject;
+
+            //add velocity in the y-axis
+            laser.GetComponent<Rigidbody2D>().velocity = new Vector2(0, laserSpeed);
+
+        }
     }
 }
