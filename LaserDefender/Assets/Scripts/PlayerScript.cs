@@ -14,6 +14,9 @@ public class PlayerScript : MonoBehaviour
 
     float padding = 0.5f;
 
+    Coroutine firingCoroutine;
+    bool CoroutineStarted = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -24,18 +27,27 @@ public class PlayerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
         Move();
         Fire();
+
     }
 
     //coroutine example
-    //private IEnumerator PrintAndWait()
-    //{
-    //    print("Mess 1");
-    //    yield return new WaitForSeconds(10);
-    //    print("Mess 2");
-    //}
+    private IEnumerator FireContinuously()
+    {
+        while (true)
+        {
+            //creates an instance (a copy of the prefab) at the position of the laser ship
+            //creates a copy of an object
+            GameObject laser = Instantiate(laserPreFab, transform.position, quaternion.identity) as GameObject;
+
+            //add velocity in the y-axis
+            laser.GetComponent<Rigidbody2D>().velocity = new Vector2(0, laserSpeed);
+
+            yield return new WaitForSeconds(0.2F);
+        }
+    }
 
     //sets the borders according to the main camera
     private void setupMoveBoundaries()
@@ -75,18 +87,25 @@ public class PlayerScript : MonoBehaviour
         transform.position = new Vector2(newXPos, newYPos);
     }
 
+
+
     private void Fire()
     {
-        //if key is pressed, create and fire a laser
-        if (Input.GetButtonDown("Fire1"))
+        if (!CoroutineStarted)
         {
-            //creates an instance (a copy of the prefab) at the position of the laser ship
-            //creates a copy of an object 
-            GameObject laser = Instantiate(laserPreFab, transform.position, quaternion.identity) as GameObject;
+            if (Input.GetButtonDown("Fire1"))
+            {
 
-            //add velocity in the y-axis
-            laser.GetComponent<Rigidbody2D>().velocity = new Vector2(0, laserSpeed);
+                firingCoroutine = StartCoroutine(FireContinuously());
+                CoroutineStarted = true;
 
+            }
+
+            if (Input.GetButtonUp("Fire1"))
+            {
+                StopCoroutine(firingCoroutine);
+                CoroutineStarted = false;
+            }
         }
     }
 }
